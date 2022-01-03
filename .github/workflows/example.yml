@@ -49,5 +49,5 @@ jobs:
         uses: 'google-github-actions/upload-cloud-storage@v0'
         with:
           path: 'dags'
-          destination: 'gs://project-example-destination-bucket/dags'
-          parent: false
+          destination: 'gs://project-example-destination-bucket'
+        
