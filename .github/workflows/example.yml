@@ -17,10 +17,10 @@ name: Build using Cloud Build
 on:
   push:
     branches:
-    - master
+    - develop
 
 env:
-  PROJECT_ID: ${{ secrets.RUN_PROJECT }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   SERVICE_NAME: helloworld-nodejs
 
 jobs:
