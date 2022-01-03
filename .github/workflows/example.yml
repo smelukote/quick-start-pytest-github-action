@@ -37,10 +37,6 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests with pytest
         run: pytest 
-        
-      - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-        id: Deploy
-        run: bash
-        uses: [ '-c', 'if [ "$BRANCH_NAME" == "develop" ]; then echo "$BRANCH_NAME" && gsutil -m rsync  -r ./dags gs://${_COMPOSER_BUCKET}/dags; else echo "Working on $BRANCH_NAME"; fi']
-        substitutions:
-         _COMPOSER_BUCKET: us-central1-airflow-2-42bc74f0-bucket
+   # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
