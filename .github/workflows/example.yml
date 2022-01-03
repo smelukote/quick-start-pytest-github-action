@@ -44,3 +44,9 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
           export_default_credentials: true
+     
+      - id: 'upload-file'
+        uses: 'google-github-actions/upload-cloud-storage@v0'
+        with:
+         path: 'gs://project-example-bucket-123/tutorial.py'
+         destination: 'project-example-destination-bucket/'
