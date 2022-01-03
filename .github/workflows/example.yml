@@ -1,59 +1,63 @@
-# This is a basic workflow to help you get started with Actions
+# Copyright 2019 Google, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-name: Cloud-composer-deployment
+name: Build using Cloud Build
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the develop branch
   push:
-    branches: [ develop ]
-  pull_request:
-    branches: [ develop ]
+    branches:
+    - master
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  PROJECT_ID: ${{ secrets.RUN_PROJECT }}
+  SERVICE_NAME: helloworld-nodejs
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
     runs-on: ubuntu-latest
 
-# Steps represent a sequence of tasks that will be executed as part of the job
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-steps:
-  - name: 'docker.io/library/python:3.7'
-    id: Test
-    entrypoint: /bin/sh
-args:
-  - -c
-  - 'pip install pytest && pip install -r requirements.txt && pytest test/*_test.py'  
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-#       # Runs a single command using the runners shell
-#       - name: Install Python 3
-#         id: UnitTest
-#         uses: actions/setup-python@v1
-#         with:
-#            python-version: 3.6
-           
-#       - name: 'Install dependencies'
-#         run: |
-#           python -m pip install --upgrade pip
-#           pip pytest && pip install -r requirements.txt && pytest test/*_test.py
-#       - name: Run tests with pytest
-#         run: pytest 
+    # Configure Workload Identity Federation and generate an access token.
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'account-example@project-example-go.iam.gserviceaccount.com'
 
-# # Setup gcloud CLI
-#   - name: Setup cloud SDK
-#     uses: google-github-actions/setup-gcloud@v0.2.
-#     with:
-#      project_id: ${{ secrets.GCP_PROJECT }}
-#      service_account_key: ${{ secrets.GCP_CREDENTIALS }}
-#      export_default_credentials: true
-     
-#   - id: 'upload-files'
-#     uses: 'google-github-actions/upload-cloud-storage@v0' 
-#     with:
-#      path: 'dags'
-#      destination: 'project-example-destination-bucket'
+    # Alternative option - authentication via credentials json
+    # - id: 'auth'
+    #   uses: 'google-github-actions/auth@v0'
+    #   with:
+    #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    # Setup gcloud CLI
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+
+    # Build and push image to Google Container Registry
+    - name: Build
+      run: |-
+        gcloud builds submit \
+          --quiet \
+          --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
