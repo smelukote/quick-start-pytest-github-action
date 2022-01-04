@@ -61,12 +61,17 @@ jobs:
 #         gcloud builds submit \
 #           --quiet \
 #           --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
-    - name: 'docker.io/library/python:3.7'
-      id: Test
-      run: /bin/sh
-       - 'pip install pytest && pip install -r requirements.txt && pytest test/*_test.py'
-
-
-
+   
+    - uses: actions/checkout@v2
+    - name: Install Python 3
+      uses: actions/setup-python@v1
+      with:
+          python-version: 3.6
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run tests with pytest
+      run: pytest 
 
 
