@@ -55,9 +55,18 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0
 
-    # Build and push image to Google Container Registry
-    - name: Build
-      run: |-
-        gcloud builds submit \
-          --quiet \
-          --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+#     # Build and push image to Google Container Registry
+#     - name: Build
+#       run: |-
+#         gcloud builds submit \
+#           --quiet \
+#           --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+    - name: 'docker.io/library/python:3.7'
+      id: Test
+      run: /bin/sh
+       - 'pip install pytest && pip install -r requirements.txt && pytest test/*_test.py'
+
+
+
+
+
