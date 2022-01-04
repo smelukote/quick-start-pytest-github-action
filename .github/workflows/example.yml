@@ -30,7 +30,7 @@ jobs:
         id: UnitTest
         uses: actions/setup-python@v1
         with:
-           python-version: 3.6
+           python-version: 3.9
            
       - name: Install dependencies
         run: |
