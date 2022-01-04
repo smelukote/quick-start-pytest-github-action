@@ -51,4 +51,3 @@ jobs:
         with:
           path: 'dags'
           destination: 'project-example-destination-bucket'
-
